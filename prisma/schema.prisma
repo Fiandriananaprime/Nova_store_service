@@ -1,0 +1,73 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------------------------------------------------------------------------
+// NOTE: "store" is its own microservice here. `userId` on Store is the seller's
+// user id owned by the auth/user service — kept as a plain scalar (no Prisma
+// relation) since there is no cross-service foreign key / join across DBs.
+// Same reasoning applies wherever a future model needs to point at a user.
+// ---------------------------------------------------------------------------
+
+model Category {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String
+  parentId  String?  @map("parent_id") @db.Uuid
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  parent   Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: Restrict)
+  children Category[] @relation("CategoryHierarchy")
+
+  @@index(parentId, map: "idx_categories_parent")
+  @@index(isActive, map: "idx_categories_active")
+  @@map("categories")
+}
+
+model Store {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId         String   @unique @map("user_id") @db.Uuid
+  name           String
+  slug           String   @unique @db.VarChar(150)
+  logoUrl        String?  @map("logo_url")
+  coverUrl       String?  @map("cover_url")
+  verified       Boolean  @default(false)
+  rating         Decimal  @default(0) @db.Decimal(3, 2)
+  reviewsCount   Int      @default(0) @map("reviews_count")
+  productsCount  Int      @default(0) @map("products_count")
+  location       String?
+  followersCount Int      @default(0) @map("followers_count")
+  description    String?
+  phone          String?  @db.VarChar(30)
+  email          String?  @db.VarChar(255)
+  website        String?
+  vacationMode   Boolean  @default(false) @map("vacation_mode")
+  businessHours  Json     @default("{}") @map("business_hours")
+  socialLinks    Json     @default("{}") @map("social_links")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  policy StorePolicy?
+
+  @@index([verified, location], map: "idx_stores_verified_location")
+  @@map("stores")
+}
+
+model StorePolicy {
+  storeId            String   @id @map("store_id") @db.Uuid
+  returnPolicy       String   @map("return_policy")
+  refundPolicy       String   @map("refund_policy")
+  cancellationPolicy String   @map("cancellation_policy")
+  privacyPolicy      String   @map("privacy_policy")
+  updatedAt          DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  @@map("store_policies")
+}
