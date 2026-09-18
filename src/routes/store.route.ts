@@ -1,5 +1,6 @@
 import type { FastifyInstance } from "fastify"
 import type { StoreController } from "../controller/store.controller.js"
+import { userContext } from "../middleware/userContext.js"
 
 export const StoreRoute = (
     app: FastifyInstance,
@@ -7,6 +8,7 @@ export const StoreRoute = (
     option: {prefix: string}
 ) => {
     app.register((route) => {
-        route.get("/stores",storeController.findProducts.bind(storeController))
-    })
+        route.get("/stores",storeController.findStores.bind(storeController))
+        route.get<{Params:{id:string}}>("/stores/:id",{preHandler:userContext},storeController.findStoreById.bind(storeController))
+    },option)
 }

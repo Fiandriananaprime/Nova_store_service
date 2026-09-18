@@ -54,6 +54,7 @@ model Store {
   updatedAt      DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   policy StorePolicy?
+  followers StoreFollower[]
 
   @@index([verified, location], map: "idx_stores_verified_location")
   @@map("stores")
@@ -70,4 +71,16 @@ model StorePolicy {
   store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
 
   @@map("store_policies")
+}
+
+model StoreFollower {
+  storeId    String   @map("store_id") @db.Uuid
+  userId     String   @map("user_id") @db.Uuid
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  @@id([storeId, userId])
+  @@index([userId])
+  @@map("store_followers")
 }

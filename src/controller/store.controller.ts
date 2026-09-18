@@ -7,10 +7,18 @@ export class StoreController {
         private readonly storeService: StoreService
     ){}
 
-    async findProducts(request: FastifyRequest<{Querystring:GetAllProductsQueryParams}>,reply:FastifyReply){
+    async findStores(request: FastifyRequest<{Querystring:GetAllProductsQueryParams}>,reply:FastifyReply){
         const {page,limit,search,location} = request.query
-        const products = await this.storeService.findAllProducts(page,limit,search,location)
+        const products = await this.storeService.findAllStores(page,limit,search,location)
 
         return reply.status(200).send(products)
+    }
+
+    async findStoreById(request: FastifyRequest<{Params: {id: string}}>, reply: FastifyReply){
+        const {id} = request.params
+        const userId = request.userId
+        const store = await this.storeService.findStoreById(id,userId)
+
+        return reply.status(200).send(store)
     }
 }
