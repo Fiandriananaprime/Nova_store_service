@@ -2,7 +2,7 @@
   "name": "nova_store_service",
   "version": "0.0.0",
   "description": "Store management microservice for NovaMarket, built with TypeScript, Fastify, Prisma, and PostgreSQL.",
-  "main": "index.js",
+  "main": "server.js",
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/server.ts",
