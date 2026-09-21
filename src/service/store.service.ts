@@ -1,6 +1,6 @@
 import { StoreNotFoundError } from "../errorHandler/StoreNotFound.js";
 import type { StoreRepository } from "../repository/store.repository.js";
-import type { Store, StoreSummary } from "../types/store.js";
+import type { Store } from "../types/store.js";
 
 export class StoreService {
     constructor(
