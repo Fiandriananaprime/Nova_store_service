@@ -5,30 +5,48 @@ import { isStoreOpen } from "../utils/BusinessHours.js";
 
 export class StoreRepository {
 
-    async findStores(search: string, page: number, limit: number, location?: string): Promise<StoreSummary[]> {
-        const stores = await prisma.store.findMany({
-          where: {
-            ...(search && { name: { contains: search, mode: "insensitive" } }),
-            ...(location && { location: { contains: location, mode: "insensitive" } }),
-          },
-          select: {
-            id: true,
-            name: true,
-            slug: true,
-            logoUrl: true,
-            verified: true,
-            rating: true,
-            reviewsCount: true,
-            productsCount: true,
-          },
+    async findStores(search: string, page: number, limit: number, location?: string) {
+        const [stores, total] = await Promise.all([
+          prisma.store.findMany({
+            where: {
+              ...(search && { name: { contains: search, mode: "insensitive" } }),
+              ...(location && { location: { contains: location, mode: "insensitive" } }),
+            },
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+              logoUrl: true,
+              verified: true,
+              rating: true,
+              reviewsCount: true,
+              productsCount: true,
+            },
             skip: (page - 1) * limit,
             take: limit,
-        });
+          }),
+          prisma.store.count({
+            where: {
+              ...(search && { name: { contains: search, mode: "insensitive" } }),
+              ...(location && { location: { contains: location, mode: "insensitive" } }),
+            },
+          }),
+        ]);
 
-         return stores.map(store => ({
+         const data: StoreSummary[] = stores.map(store => ({
             ...store,
             rating: Number(store.rating),
         }));
+
+        return {
+          data,
+          meta: {
+            page,
+            limit,
+            total,
+            totalPages: Math.ceil(total / limit),
+          },
+        };
     }
 
     async getStoreById( id: string, userId: string | null,): Promise<Store | null> {
@@ -76,7 +94,7 @@ export class StoreRepository {
       };
     }
 
-    async getFeaturedStore():Promise<StoreSummary[]> {
+    async getFeaturedStore() {
       const now = new Date();
 
       const data = await prisma.featuredStore.findMany({
@@ -91,7 +109,7 @@ export class StoreRepository {
           take: 5,
           include: { store: true },
     });
-    return data.map(({ store }) => ({
+    const featured: StoreSummary[] = data.map(({ store }) => ({
           id: store.id,
           name: store.name,
           slug: store.slug,
@@ -101,5 +119,9 @@ export class StoreRepository {
           reviewsCount: store.reviewsCount,
           productsCount: store.productsCount,
       }));
+
+      return {
+        data: featured,
+      };
   }
 }

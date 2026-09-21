@@ -26,8 +26,8 @@ export class StoreService {
         return store
     }
 
-    async getFeaturedStore(): Promise<StoreSummary[]>{
+    async getFeaturedStore() {
         const store = await this.storeRepository.getFeaturedStore();
-        return store
+        return store;
     }
 }

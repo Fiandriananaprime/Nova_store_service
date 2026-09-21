@@ -1,6 +1,6 @@
-import "dotenv/config";
-
 import { app } from "./app.js";
+import "dotenv/config";
+import { startGrpcServer } from "./grpc/server.js";
 
 const PORT = Number(process.env["PORT"]) || 3001;
 
@@ -32,3 +32,4 @@ process.on("uncaughtException", (error) => {
 });
 
 start();
+startGrpcServer();

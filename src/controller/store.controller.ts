@@ -25,6 +25,6 @@ export class StoreController {
     async getFeaturedStores(_request: FastifyRequest, reply:FastifyReply){
         const featuredStore = await this.storeService.getFeaturedStore();
 
-        return reply.status(200).send(featuredStore)
+        return reply.status(200).send(featuredStore);
     }
 }
