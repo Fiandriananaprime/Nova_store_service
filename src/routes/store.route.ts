@@ -10,5 +10,6 @@ export const StoreRoute = (
     app.register((route) => {
         route.get("/stores",storeController.findStores.bind(storeController))
         route.get<{Params:{id:string}}>("/stores/:id",{preHandler:userContext},storeController.findStoreById.bind(storeController))
+        route.get("/stores/featured",storeController.getFeaturedStores.bind(storeController))
     },option)
 }

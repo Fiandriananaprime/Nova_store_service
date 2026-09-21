@@ -75,4 +75,31 @@ export class StoreRepository {
         },
       };
     }
+
+    async getFeaturedStore():Promise<StoreSummary[]> {
+      const now = new Date();
+
+      const data = await prisma.featuredStore.findMany({
+          where: {
+              startsAt: { lte: now },
+              OR: [
+                  { endsAt: null },
+                  { endsAt: { gt: now } },
+              ],
+          },
+          orderBy: { position: "asc" },
+          take: 5,
+          include: { store: true },
+    });
+    return data.map(({ store }) => ({
+          id: store.id,
+          name: store.name,
+          slug: store.slug,
+          logoUrl: store.logoUrl,
+          verified: store.verified,
+          rating: store.rating.toNumber(),
+          reviewsCount: store.reviewsCount,
+          productsCount: store.productsCount,
+      }));
+  }
 }

@@ -55,11 +55,23 @@ model Store {
 
   policy StorePolicy?
   followers StoreFollower[]
-
+  featured FeaturedStore[]
   @@index([verified, location], map: "idx_stores_verified_location")
   @@map("stores")
 }
+model FeaturedStore {
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  storeId   String    @map("store_id") @db.Uuid
+  position  Int       @default(0)
+  startsAt  DateTime  @map("starts_at") @db.Timestamptz(6)
+  endsAt    DateTime? @map("ends_at") @db.Timestamptz(6)
 
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  @@index([position])
+  @@index([startsAt, endsAt])
+  @@map("featured_stores")
+}
 model StorePolicy {
   storeId            String   @id @map("store_id") @db.Uuid
   returnPolicy       String   @map("return_policy")

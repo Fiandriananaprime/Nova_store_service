@@ -21,4 +21,10 @@ export class StoreController {
 
         return reply.status(200).send(store)
     }
+
+    async getFeaturedStores(_request: FastifyRequest, reply:FastifyReply){
+        const featuredStore = await this.storeService.getFeaturedStore();
+
+        return reply.status(200).send(featuredStore)
+    }
 }
