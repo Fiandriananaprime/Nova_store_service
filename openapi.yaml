@@ -55,8 +55,77 @@ paths:
           content:
             text/plain:
               schema: { type: string }
+
+  /stores:
+    get:
+      tags: [Catalog]
+      summary: List public stores
+      security: []
+      parameters:
+      - {$ref: '#/components/parameters/SearchParam'}
+      - {$ref: '#/components/parameters/PageParam'}
+      - {$ref: '#/components/parameters/LimitParam'}
+      - name: location
+        in: query
+        schema: {type: string}
+      responses:
+        '200':
+          description: Store list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: {$ref: '#/components/schemas/StoreSummary'}
+                  meta: {$ref: '#/components/schemas/PaginationMeta'}
 components:
+  parameters:
+    PageParam:
+      name: page
+      in: query
+      schema: {type: integer, minimum: 1, default: 1}
+    LimitParam:
+      name: limit
+      in: query
+      schema: {type: integer, minimum: 1, maximum: 100, default: 20}
+    CursorParam:
+      name: cursor
+      in: query
+      required: false
+      schema:
+        type: string
+      description: Cursor for pagination
+    SearchParam:
+      name: search
+      in: query
+      schema: {type: string}
+    IdParam:
+      name: id
+      in: path
+      required: true
+      schema: {type: string}
   schemas:
+    StoreSummary:
+      type: object
+      required: [id, name, slug, logoUrl, verified, rating, reviewsCount, productsCount]
+      properties:
+        id: {type: string, format: uuid}
+        name: {type: string}
+        slug: {type: string}
+        logoUrl: {type: string, nullable: true}
+        verified: {type: boolean}
+        rating: {type: number, minimum: 0, maximum: 5}
+        reviewsCount: {type: integer}
+        productsCount: {type: integer}
+    PaginationMeta:
+      type: object
+      properties:
+        page: {type: integer, example: 1}
+        limit: {type: integer, example: 20}
+        total: {type: integer, example: 96}
+        totalPages: {type: integer, example: 5}
     HealthResponse:
       type: object
       required: [status]
