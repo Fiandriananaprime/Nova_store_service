@@ -27,4 +27,24 @@ export class StoreController {
 
         return reply.status(200).send(featuredStore);
     }
+
+    async followStore(request: FastifyRequest<{Params: {id: string}}>, reply: FastifyReply){
+        const {id} = request.params
+        const userId = request.userId
+        if(!userId) return reply.code(401).send({error: "Unauthorized"})
+
+        await this.storeService.followStore(id,userId)
+
+        return reply.status(204).send()
+    }
+
+    async unfollowStore(request: FastifyRequest<{Params: {id: string}}>, reply: FastifyReply){
+        const {id} = request.params
+        const userId = request.userId
+        if(!userId) return reply.code(401).send({error: "Unauthorized"})
+
+        await this.storeService.unfollowStore(id,userId)
+
+        return reply.status(204).send()
+    }
 }

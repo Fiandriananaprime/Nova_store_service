@@ -108,20 +108,54 @@ export class StoreRepository {
           orderBy: { position: "asc" },
           take: 5,
           include: { store: true },
-    });
-    const featured: StoreSummary[] = data.map(({ store }) => ({
-          id: store.id,
-          name: store.name,
-          slug: store.slug,
-          logoUrl: store.logoUrl,
-          verified: store.verified,
-          rating: store.rating.toNumber(),
-          reviewsCount: store.reviewsCount,
-          productsCount: store.productsCount,
-      }));
+      });
+      const featured: StoreSummary[] = data.map(({ store }) => ({
+            id: store.id,
+            name: store.name,
+            slug: store.slug,
+            logoUrl: store.logoUrl,
+            verified: store.verified,
+            rating: store.rating.toNumber(),
+            reviewsCount: store.reviewsCount,
+            productsCount: store.productsCount,
+        }));
 
-      return {
-        data: featured,
-      };
-  }
+        return {
+          data: featured,
+        };
+    }
+
+    async followStore(storeId: string, userId: string) {
+      await prisma.storeFollower.create({
+        data: {
+          storeId,
+          userId,
+        },
+      });
+
+      await prisma.store.update({
+        where: { id: storeId },
+        data: {
+          followersCount: { increment: 1 },
+        },
+      });
+    }
+
+    async unfollowStore(storeId: string, userId: string) {
+      await prisma.storeFollower.delete({
+        where: {
+          storeId_userId: {
+            storeId,
+            userId,
+          },
+        },
+      });
+
+      await prisma.store.update({
+        where: { id: storeId },
+        data: {
+          followersCount: { decrement: 1 },
+        },
+      });
+    }
 }

@@ -30,4 +30,17 @@ export class StoreService {
         const store = await this.storeRepository.getFeaturedStore();
         return store;
     }
+
+    async followStore(storeId: string, userId: string) {
+        const store = await this.storeRepository.getStoreById(storeId, userId);
+        if (!store) throw new StoreNotFoundError();
+
+        await this.storeRepository.followStore(storeId, userId);
+    }
+
+    async unfollowStore(storeId: string, userId: string) {
+        const store = await this.storeRepository.getStoreById(storeId, userId);
+        if (!store) throw new StoreNotFoundError();
+        await this.storeRepository.unfollowStore(storeId, userId);
+    }
 }

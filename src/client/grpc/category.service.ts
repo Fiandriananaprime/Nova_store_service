@@ -1,5 +1,5 @@
-import { CategoryRepository } from "../repository/category.repository.js";
-import { CategoryService } from "../service/category.service.js";
+import { CategoryRepository } from "../../repository/category.repository.js";
+import { CategoryService } from "../../service/category.service.js";
 
 const categoryRepository = new CategoryRepository()
 const categoryService = new CategoryService(categoryRepository);

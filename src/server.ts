@@ -1,6 +1,6 @@
 import { app } from "./app.js";
 import "dotenv/config";
-import { startGrpcServer } from "./grpc/server.js";
+import { startGrpcServer } from "./client/grpc/server.js";
 
 const PORT = Number(process.env["PORT"]) || 3001;
 
