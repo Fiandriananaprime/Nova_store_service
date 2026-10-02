@@ -11,7 +11,7 @@ export const StoreRoute = (
         route.get("/stores",storeController.findStores.bind(storeController))
         route.get<{Params:{id:string}}>("/stores/:id",{preHandler:userContext},storeController.findStoreById.bind(storeController))
         route.get("/stores/featured",storeController.getFeaturedStores.bind(storeController))
-        route.post("/stores/:id/follow",{preHandler:userContext},storeController.followStore.bind(storeController))
-        route.delete("/stores/:id/follow",{preHandler:userContext},storeController.unfollowStore.bind(storeController))
+        route.post<{Params:{id:string}}>("/stores/:id/follow",{preHandler:userContext},storeController.followStore.bind(storeController))
+        route.delete<{Params:{id:string}}>("/stores/:id/follow",{preHandler:userContext},storeController.unfollowStore.bind(storeController))
     },option)
 }
