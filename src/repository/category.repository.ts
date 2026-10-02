@@ -1,6 +1,19 @@
 import { prisma } from "../database/prisma.js";
 
 export class CategoryRepository {
+    
+    async findAllCategories() {
+        const categories = await prisma.category.findMany({
+            where: { isActive: true },
+            select: {
+                id: true,
+                name: true,
+                parentId: true,
+            },
+        });
+        return categories;
+    }
+
     async getRelatedCategoryIds(id: string): Promise<string[]> {
         const categories = await prisma.category.findMany({
             select: { id: true, parentId: true },
