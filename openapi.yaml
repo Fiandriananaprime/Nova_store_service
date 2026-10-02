@@ -9,6 +9,10 @@ servers:
 tags:
   - name: System
     description: Common service health and monitoring endpoints
+  - name: Catalog
+    description: Public store and category catalog
+  - name: Stores
+    description: Store details and follower actions
 paths:
   /health:
     get:
@@ -56,7 +60,7 @@ paths:
             text/plain:
               schema: { type: string }
 
-  /stores:
+  /api/stores:
     get:
       tags: [Catalog]
       summary: List public stores
@@ -80,7 +84,107 @@ paths:
                     type: array
                     items: {$ref: '#/components/schemas/StoreSummary'}
                   meta: {$ref: '#/components/schemas/PaginationMeta'}
+  /api/stores/featured:
+    get:
+      tags: [Catalog]
+      summary: List currently featured stores
+      security: []
+      responses:
+        '200':
+          description: Featured stores
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items: {$ref: '#/components/schemas/StoreSummary'}
+  /api/stores/{id}:
+    get:
+      tags: [Catalog]
+      summary: Get store details
+      description: If the gateway supplies x-user-id, the response includes the current user's follow status.
+      security:
+        - {}
+        - gatewayUserContext: []
+      parameters:
+      - {$ref: '#/components/parameters/IdParam'}
+      responses:
+        '200':
+          description: Store details
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Store'}
+        '404':
+          description: Store not found
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Error'}
+  /api/stores/{id}/follow:
+    post:
+      tags: [Stores]
+      summary: Follow a store
+      description: The user identity is provided by the API Gateway in x-user-id.
+      security:
+        - gatewayUserContext: []
+      parameters:
+      - {$ref: '#/components/parameters/IdParam'}
+      responses:
+        '204': {description: Store followed}
+        '401': {description: Authenticated user context is required}
+        '404': {description: Store not found}
+    delete:
+      tags: [Stores]
+      summary: Unfollow a store
+      description: The user identity is provided by the API Gateway in x-user-id.
+      security:
+        - gatewayUserContext: []
+      parameters:
+      - {$ref: '#/components/parameters/IdParam'}
+      responses:
+        '204': {description: Store unfollowed}
+        '401': {description: Authenticated user context is required}
+        '404': {description: Store not found}
+  /api/categories:
+    get:
+      tags: [Catalog]
+      summary: List active categories as a tree
+      security: []
+      responses:
+        '200':
+          description: Category tree
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: '#/components/schemas/CategoryTree'}
+  /api/categories/{id}:
+    get:
+      tags: [Catalog]
+      summary: Get category details
+      security: []
+      parameters:
+      - {$ref: '#/components/parameters/IdParam'}
+      responses:
+        '200':
+          description: Category with parent, children and product specifications
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/CategoryDetail'}
+        '404':
+          description: Category not found
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Error'}
 components:
+  securitySchemes:
+    gatewayUserContext:
+      type: apiKey
+      in: header
+      name: x-user-id
+      description: User UUID injected by the API Gateway. Clients must not set this header directly.
   parameters:
     PageParam:
       name: page
@@ -105,7 +209,7 @@ components:
       name: id
       in: path
       required: true
-      schema: {type: string}
+      schema: {type: string, format: uuid}
   schemas:
     StoreSummary:
       type: object
@@ -119,6 +223,107 @@ components:
         rating: {type: number, minimum: 0, maximum: 5}
         reviewsCount: {type: integer}
         productsCount: {type: integer}
+    Store:
+      type: object
+      required:
+        - id
+        - userId
+        - name
+        - slug
+        - verified
+        - rating
+        - reviewsCount
+        - productsCount
+        - followersCount
+        - isOpen
+        - isFollowedByCurrentUser
+        - contact
+      properties:
+        id: {type: string, format: uuid}
+        userId: {type: string, format: uuid}
+        name: {type: string}
+        slug: {type: string}
+        logoUrl: {type: string, nullable: true}
+        coverUrl: {type: string, nullable: true}
+        verified: {type: boolean}
+        rating: {type: number, minimum: 0, maximum: 5}
+        reviewsCount: {type: integer}
+        productsCount: {type: integer}
+        location: {type: string, nullable: true}
+        joinedYear: {type: string}
+        followersCount: {type: integer}
+        description: {type: string, nullable: true}
+        isOpen: {type: boolean}
+        isFollowedByCurrentUser: {type: boolean, nullable: true}
+        contact:
+          type: object
+          required: [phone, email, website]
+          properties:
+            phone: {type: string, nullable: true}
+            email: {type: string, format: email, nullable: true}
+            website: {type: string, nullable: true}
+    CategoryTree:
+      type: object
+      required: [id, name, children]
+      properties:
+        id: {type: string, format: uuid}
+        name: {type: string}
+        children:
+          type: array
+          items: {$ref: '#/components/schemas/CategoryTree'}
+    CategoryDetail:
+      type: object
+      required: [id, name, parentId, isActive, createdAt, updatedAt, parent, children, specs]
+      properties:
+        id: {type: string, format: uuid}
+        name: {type: string}
+        parentId: {type: string, format: uuid, nullable: true}
+        isActive: {type: boolean}
+        createdAt: {type: string, format: date-time}
+        updatedAt: {type: string, format: date-time}
+        parent:
+          allOf:
+            - {$ref: '#/components/schemas/Category'}
+          nullable: true
+        children:
+          type: array
+          items: {$ref: '#/components/schemas/Category'}
+        specs:
+          type: array
+          items: {$ref: '#/components/schemas/CategorySpec'}
+    Category:
+      type: object
+      required: [id, name, parentId, isActive, createdAt, updatedAt]
+      properties:
+        id: {type: string, format: uuid}
+        name: {type: string}
+        parentId: {type: string, format: uuid, nullable: true}
+        isActive: {type: boolean}
+        createdAt: {type: string, format: date-time}
+        updatedAt: {type: string, format: date-time}
+    CategorySpec:
+      type: object
+      required: [id, categoryId, key, name, type, required, filterable, searchable, options, createdAt, updatedAt]
+      properties:
+        id: {type: string, format: uuid}
+        categoryId: {type: string, format: uuid}
+        key: {type: string}
+        name: {type: string}
+        type: {type: string, enum: [TEXT, NUMBER, BOOLEAN, SELECT, MULTI_SELECT]}
+        required: {type: boolean}
+        filterable: {type: boolean}
+        searchable: {type: boolean}
+        options: {nullable: true}
+        createdAt: {type: string, format: date-time}
+        updatedAt: {type: string, format: date-time}
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code: {type: string}
+            message: {type: string}
     PaginationMeta:
       type: object
       properties:

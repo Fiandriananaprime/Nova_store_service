@@ -1,4 +1,4 @@
-import { StoreNotFoundError } from "../errorHandler/StoreNotFound.js";
+import { StoreNotFoundError } from "../errorHandler/StoreError.js";
 import type { StoreRepository } from "../repository/store.repository.js";
 import type { Store } from "../types/store.js";
 

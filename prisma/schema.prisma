@@ -14,6 +14,38 @@ datasource db {
 // Same reasoning applies wherever a future model needs to point at a user.
 // ---------------------------------------------------------------------------
 
+model CategorySpec {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  categoryId String   @map("category_id") @db.Uuid
+
+  key        String
+  name       String
+  type       SpecType
+
+  required   Boolean  @default(false)
+  filterable Boolean  @default(false)
+  searchable Boolean  @default(false)
+
+  options    Json?
+
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@unique([categoryId, key])
+  @@index(categoryId)
+  @@map("category_specs")
+}
+
+enum SpecType {
+  TEXT
+  NUMBER
+  BOOLEAN
+  SELECT
+  MULTI_SELECT
+}
+
 model Category {
   id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name      String
@@ -24,6 +56,7 @@ model Category {
 
   parent   Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: Restrict)
   children Category[] @relation("CategoryHierarchy")
+  specs     CategorySpec[]
 
   @@index(parentId, map: "idx_categories_parent")
   @@index(isActive, map: "idx_categories_active")
