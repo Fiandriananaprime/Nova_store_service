@@ -1,5 +1,6 @@
+import { CategoryNotFoundError } from "../errorHandler/CategoryError.js";
 import { CategoryRepository } from "../repository/category.repository.js";
-import type { CategoryTree } from "../types/category.js";
+import type { CategoryDetail, CategoryTree } from "../types/category.js";
 
 export class CategoryService {
     constructor(
@@ -42,5 +43,11 @@ export class CategoryService {
     }
     async getRelatedCategoryIds(id: string): Promise<string[]> {
         return this.categoryRepository.getRelatedCategoryIds(id)
+    }
+    
+    async getCategoryById(id: string): Promise<CategoryDetail> {
+        const category = await this.categoryRepository.getCategoryById(id);
+        if (!category) throw new CategoryNotFoundError();
+        return category;
     }
 }

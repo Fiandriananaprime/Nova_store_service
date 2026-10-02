@@ -16,5 +16,6 @@ export const StoreRoute = (
         route.post<{Params:{id:string}}>("/stores/:id/follow",{preHandler:userContext},storeController.followStore.bind(storeController))
         route.delete<{Params:{id:string}}>("/stores/:id/follow",{preHandler:userContext},storeController.unfollowStore.bind(storeController))
         route.get("/categories", categoryController.findAllCategories.bind(categoryController))
+        route.get<{Params:{id:string}}>("/categories/:id", categoryController.findCategoryById.bind(categoryController))
     },option)
 }
