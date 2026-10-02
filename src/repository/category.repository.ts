@@ -1,5 +1,5 @@
 import { prisma } from "../database/prisma.js";
-import type { Category, CategoryDetail } from "../types/category.js";
+import type { CategoryDetail } from "../types/category.js";
 
 export class CategoryRepository {
 
