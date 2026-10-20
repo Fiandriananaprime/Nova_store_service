@@ -2,8 +2,8 @@ import grpc from "@grpc/grpc-js";
 import protoLoader from "@grpc/proto-loader";
 import { fileURLToPath } from "node:url";
 
-type SellerBusinessDetails = {
-  businessType: string;
+export type SellerBusinessDetails = {
+  businessType: "individual" | "company";
   taxId: string;
   registrationNumber: string;
 };

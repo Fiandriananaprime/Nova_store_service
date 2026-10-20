@@ -1,8 +1,9 @@
-import type { StoreSettings } from "@Fiandriananaprime/nova_api_type";
 import { StoreNotFoundError } from "../errorHandler/StoreError.js";
 import type { StoreRepository } from "../repository/store.repository.js";
-import type { Store, StoreSummary } from "../types/store.js";
+import type { Store, StoreSettings, StoreSummary } from "../types/store.js";
 import type { role } from "../types/userRole.js";
+import { getSellerBusinessDetails } from "../client/grpc/seller.client.js";
+import { InvalidCredentials } from "../errorHandler/InvalidCredentials.js";
 
 export class StoreService {
     constructor(
@@ -28,7 +29,17 @@ export class StoreService {
         const store = await this.storeRepository.getStoreById(id,userId,role);
 
         if(!store) throw new StoreNotFoundError()
+        if(role == "SELLER"){
+            if(!userId) throw new InvalidCredentials("Seller not authenticated")
+            const detail = await getSellerBusinessDetails(userId);
 
+            return {
+                ...store,
+                taxId: detail.taxId,
+                registrationNumber:detail.registrationNumber,
+                businessType:detail.businessType
+            }
+        }
         return store
     }
 

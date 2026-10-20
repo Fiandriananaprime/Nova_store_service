@@ -46,11 +46,6 @@ enum SpecType {
   MULTI_SELECT
 }
 
-enum BusinessType{
-  INDIVIDUAL
-  COMPANY
-}
-
 model Category {
   id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name      String
@@ -76,7 +71,6 @@ model Store {
   logoUrl        String?  @map("logo_url")
   coverUrl       String?  @map("cover_url")
   verified       Boolean  @default(false)
-  businessType   BusinessType
   rating         Decimal  @default(0) @db.Decimal(3, 2)
   reviewsCount   Int      @default(0) @map("reviews_count")
   productsCount  Int      @default(0) @map("products_count")
