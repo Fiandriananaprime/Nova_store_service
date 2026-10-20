@@ -1,7 +1,8 @@
 import type { BusinessHours } from "@Fiandriananaprime/nova_api_type";
 import { prisma } from "../database/prisma.js";
-import type { Store, StoreSummary } from "../types/store.js";
+import type { Store, StoreSettings, StoreSummary } from "../types/store.js";
 import { isStoreOpen } from "../utils/BusinessHours.js";
+import type { role } from "../types/userRole.js";
 
 export class StoreRepository {
 
@@ -84,51 +85,94 @@ export class StoreRepository {
         };
     }
 
-    async getStoreById( id: string, userId: string | null,): Promise<Store | null> {
-      const store = await prisma.store.findUnique({ where: { id }});
-      if (!store) { return null }
-      
-      const isOpen = isStoreOpen( store.businessHours as BusinessHours,store.vacationMode,);
-      let isFollowedByCurrentUser: boolean | null = null;
+    async getStoreById(
+  id: string,
+  userId: string | null,
+  role: role
+): Promise<Store | StoreSettings | null> {
 
-      if (userId) {
-        const follow = await prisma.storeFollower.findUnique({
-          where: {
-            storeId_userId: {
-              storeId: id,
-              userId,
-            },
-          },
-        });
+  if (role === 'SELLER') {
+    const store = await prisma.store.findUnique({
+      where: { id },
+      include: {
+        policy: true,
+      },
+    });
 
-        isFollowedByCurrentUser = !!follow;
-      }
+    if (!store) return null;
 
-      return {
-        id: store.id,
-        userId: store.userId,
-        name: store.name,
-        slug: store.slug,
-        logoUrl: store.logoUrl,
-        coverUrl: store.coverUrl,
-        verified: store.verified,
-        rating: Number(store.rating),
-        reviewsCount: store.reviewsCount,
-        productsCount: store.productsCount,
-        location: store.location,
-        joinedYear: String(store.createdAt.getFullYear()),
-        followersCount: store.followersCount,
-        description: store.description,
-        isOpen,
-        isFollowedByCurrentUser,
-        contact: {
-          phone: store.phone,
-          email: store.email,
-          website: store.website,
+    return {
+      id: store.id,
+      name: store.name,
+      slug: store.slug,
+      description: store.description ?? "",
+      logoUrl: store.logoUrl,
+      coverUrl: store.coverUrl,
+      location: store.location,
+      phone: store.phone,
+      email: store.email,
+      vacationMode: store.vacationMode,
+      businessHours: store.businessHours as BusinessHours,
+      socialLinks: store.socialLinks,
+      policies: {
+        returnPolicy: store.policy?.returnPolicy ?? '',
+        refundPolicy: store.policy?.refundPolicy ?? '',
+        cancellationPolicy: store.policy?.cancellationPolicy ?? '',
+        privacyPolicy: store.policy?.privacyPolicy ?? '',
+      },
+    };
+  }
+
+  const store = await prisma.store.findUnique({
+    where: { id },
+  });
+
+  if (!store) return null;
+
+  const isOpen = isStoreOpen(
+    store.businessHours as BusinessHours,
+    store.vacationMode
+  );
+
+  let isFollowedByCurrentUser: boolean | null = null;
+
+  if (userId) {
+    const follow = await prisma.storeFollower.findUnique({
+      where: {
+        storeId_userId: {
+          storeId: id,
+          userId,
         },
-      };
-    }
+      },
+    });
 
+    isFollowedByCurrentUser = !!follow;
+  }
+
+  return {
+    id: store.id,
+    userId: store.userId,
+    name: store.name,
+    slug: store.slug,
+    logoUrl: store.logoUrl,
+    coverUrl: store.coverUrl,
+    verified: store.verified,
+    rating: Number(store.rating),
+    reviewsCount: store.reviewsCount,
+    productsCount: store.productsCount,
+    location: store.location,
+    joinedYear: String(store.createdAt.getFullYear()),
+    followersCount: store.followersCount,
+    description: store.description ?? "",
+    isOpen,
+    isFollowedByCurrentUser,
+    contact: {
+      phone: store.phone,
+      email: store.email,
+      website: store.website,
+    },
+  };
+}
     async getFeaturedStore() {
       const now = new Date();
 

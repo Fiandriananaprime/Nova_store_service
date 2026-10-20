@@ -22,10 +22,10 @@ export class StoreController {
         return reply.status(200).send(products)
     }
 
-    async findStoreById(request: FastifyRequest<{Params: {id: string}}>, reply: FastifyReply){
+    async findBuyerStoreById(request: FastifyRequest<{Params: {id: string}}>, reply: FastifyReply){
         const {id} = request.params
         const userId = request.userId
-        const store = await this.storeService.findStoreById(id,userId)
+        const store = await this.storeService.findStoreById(id,userId,"BUYER")
 
         return reply.status(200).send(store)
     }

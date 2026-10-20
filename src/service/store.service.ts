@@ -1,6 +1,8 @@
+import type { StoreSettings } from "@Fiandriananaprime/nova_api_type";
 import { StoreNotFoundError } from "../errorHandler/StoreError.js";
 import type { StoreRepository } from "../repository/store.repository.js";
 import type { Store, StoreSummary } from "../types/store.js";
+import type { role } from "../types/userRole.js";
 
 export class StoreService {
     constructor(
@@ -22,8 +24,8 @@ export class StoreService {
         return products
     }
 
-    async findStoreById(id: string, userId: string | null) : Promise<Store>{
-        const store = await this.storeRepository.getStoreById(id,userId);
+    async findStoreById(id: string, userId: string | null,role:role) : Promise<Store | StoreSettings>{
+        const store = await this.storeRepository.getStoreById(id,userId,role);
 
         if(!store) throw new StoreNotFoundError()
 
@@ -36,14 +38,14 @@ export class StoreService {
     }
 
     async followStore(storeId: string, userId: string) {
-        const store = await this.storeRepository.getStoreById(storeId, userId);
+        const store = await this.storeRepository.getStoreById(storeId, userId,"BUYER");
         if (!store) throw new StoreNotFoundError();
 
         await this.storeRepository.followStore(storeId, userId);
     }
 
     async unfollowStore(storeId: string, userId: string) {
-        const store = await this.storeRepository.getStoreById(storeId, userId);
+        const store = await this.storeRepository.getStoreById(storeId, userId,"BUYER");
         if (!store) throw new StoreNotFoundError();
         await this.storeRepository.unfollowStore(storeId, userId);
     }
@@ -52,4 +54,5 @@ export class StoreService {
         const store = await this.storeRepository.getStoreBySellerId(sellerId);
         return store;
     }
+
 }

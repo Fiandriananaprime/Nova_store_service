@@ -1,3 +1,5 @@
+import type { Prisma } from "../generated/prisma/index.js";
+
 export type GetAllProductsQueryParams = {
     page: number,
     limit: number,
@@ -21,7 +23,7 @@ export type BusinessHours = {
   sunday?: BusinessDay;
 };
 
-export type StoreSummary = {
+export interface StoreSummary  {
   id: string;
   name: string;
   slug: string;
@@ -32,17 +34,9 @@ export type StoreSummary = {
   productsCount: number;
 };
 
-export type Store = {
-  id: string;
+export interface Store extends StoreSummary {
   userId: string;
-  name: string;
-  slug: string;
-  logoUrl: string | null;
   coverUrl: string | null;
-  verified: boolean;
-  rating: number;
-  reviewsCount: number;
-  productsCount: number;
   location: string | null;
   joinedYear: string;
   followersCount: number;
@@ -55,3 +49,29 @@ export type Store = {
     website: string | null;
   };
 };
+
+export interface StoreSettings {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  logoUrl: string | null;
+  coverUrl: string | null;
+  location: string;
+  phone: string;
+  email: string;
+  businessType?: 'individual' | 'company' ;
+  taxId?: string ;
+  registrationNumber?: string;
+  vacationMode: boolean;
+  businessHours: BusinessHours;
+  socialLinks: Prisma.JsonValue;
+  policies: StorePolicies;
+}
+
+export interface StorePolicies {
+  returnPolicy: string;
+  refundPolicy: string;
+  cancellationPolicy: string;
+  privacyPolicy: string;
+}

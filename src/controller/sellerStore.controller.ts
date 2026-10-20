@@ -15,4 +15,12 @@ export class SellerStoreController {
 
         return reply.status(200).send(stores)
     }
+
+    async getStoreByStoreIdAndSellerId(request:FastifyRequest<{Params:{id: string}}>,reply:FastifyReply){
+        const sellerId = request.userId;
+        const storeId= request.params.id;
+
+        const store = this.storeService.findStoreById(storeId,sellerId,"SELLER");
+        return reply.status(200).send(store)
+    }
 }

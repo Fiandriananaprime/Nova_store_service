@@ -46,6 +46,11 @@ enum SpecType {
   MULTI_SELECT
 }
 
+enum BusinessType{
+  INDIVIDUAL
+  COMPANY
+}
+
 model Category {
   id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name      String
@@ -71,14 +76,15 @@ model Store {
   logoUrl        String?  @map("logo_url")
   coverUrl       String?  @map("cover_url")
   verified       Boolean  @default(false)
+  businessType   BusinessType
   rating         Decimal  @default(0) @db.Decimal(3, 2)
   reviewsCount   Int      @default(0) @map("reviews_count")
   productsCount  Int      @default(0) @map("products_count")
-  location       String?
+  location       String
   followersCount Int      @default(0) @map("followers_count")
   description    String?
-  phone          String?  @db.VarChar(30)
-  email          String?  @db.VarChar(255)
+  phone          String  @db.VarChar(30)
+  email          String  @db.VarChar(255)
   website        String?
   vacationMode   Boolean  @default(false) @map("vacation_mode")
   businessHours  Json     @default("{}") @map("business_hours")
