@@ -7,6 +7,14 @@ export class StoreController {
         private readonly storeService: StoreService
     ){}
 
+    async getFollowedStores(request: FastifyRequest, reply: FastifyReply) {
+        const userId = request.userId;
+        if (!userId) return reply.code(401).send({ error: "Unauthorized" });
+
+        const stores = await this.storeService.getFollowedStores(userId);
+        return reply.status(200).send(stores);
+    }
+
     async findStores(request: FastifyRequest<{Querystring:GetAllProductsQueryParams}>,reply:FastifyReply){
         const {page,limit,search,location} = request.query
         const products = await this.storeService.findAllStores(page,limit,search,location)
@@ -28,22 +36,22 @@ export class StoreController {
         return reply.status(200).send(featuredStore);
     }
 
-    async followStore(request: FastifyRequest<{Params: {id: string}}>, reply: FastifyReply){
-        const {id} = request.params
+    async followStore(request: FastifyRequest<{Params: {storeId: string}}>, reply: FastifyReply){
+        const {storeId} = request.params
         const userId = request.userId
         if(!userId) return reply.code(401).send({error: "Unauthorized"})
 
-        await this.storeService.followStore(id,userId)
+        await this.storeService.followStore(storeId,userId)
 
         return reply.status(204).send()
     }
 
-    async unfollowStore(request: FastifyRequest<{Params: {id: string}}>, reply: FastifyReply){
-        const {id} = request.params
+    async unfollowStore(request: FastifyRequest<{Params: {storeId: string}}>, reply: FastifyReply){
+        const {storeId} = request.params
         const userId = request.userId
         if(!userId) return reply.code(401).send({error: "Unauthorized"})
 
-        await this.storeService.unfollowStore(id,userId)
+        await this.storeService.unfollowStore(storeId,userId)
 
         return reply.status(204).send()
     }

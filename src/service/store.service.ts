@@ -1,11 +1,15 @@
 import { StoreNotFoundError } from "../errorHandler/StoreError.js";
 import type { StoreRepository } from "../repository/store.repository.js";
-import type { Store } from "../types/store.js";
+import type { Store, StoreSummary } from "../types/store.js";
 
 export class StoreService {
     constructor(
         private readonly storeRepository: StoreRepository
     ){}
+
+    getFollowedStores(userId: string): Promise<Store[]> {
+        return this.storeRepository.getFollowedStores(userId);
+    }
 
     async findAllStores(
         page = 1,
@@ -42,5 +46,10 @@ export class StoreService {
         const store = await this.storeRepository.getStoreById(storeId, userId);
         if (!store) throw new StoreNotFoundError();
         await this.storeRepository.unfollowStore(storeId, userId);
+    }
+
+    async getStoreBySellerId(sellerId: string): Promise<StoreSummary[]> {
+        const store = await this.storeRepository.getStoreBySellerId(sellerId);
+        return store;
     }
 }

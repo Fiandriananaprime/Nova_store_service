@@ -122,15 +122,34 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/Error'}
-  /api/stores/{id}/follow:
+  /api/buyer/favorites/stores:
+    get:
+      tags: [Stores]
+      summary: List followed stores
+      description: The user identity is provided by the API Gateway in x-user-id.
+      security:
+        - gatewayUserContext: []
+      responses:
+        '200':
+          description: Followed stores
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: '#/components/schemas/Store'}
+        '401': {description: Authenticated user context is required}
+  /api/buyer/favorites/stores/{storeId}:
+    parameters:
+    - name: storeId
+      in: path
+      required: true
+      schema: {type: string, format: uuid}
     post:
       tags: [Stores]
       summary: Follow a store
       description: The user identity is provided by the API Gateway in x-user-id.
       security:
         - gatewayUserContext: []
-      parameters:
-      - {$ref: '#/components/parameters/IdParam'}
       responses:
         '204': {description: Store followed}
         '401': {description: Authenticated user context is required}
@@ -141,8 +160,6 @@ paths:
       description: The user identity is provided by the API Gateway in x-user-id.
       security:
         - gatewayUserContext: []
-      parameters:
-      - {$ref: '#/components/parameters/IdParam'}
       responses:
         '204': {description: Store unfollowed}
         '401': {description: Authenticated user context is required}

@@ -5,6 +5,41 @@ import { isStoreOpen } from "../utils/BusinessHours.js";
 
 export class StoreRepository {
 
+    async getFollowedStores(userId: string): Promise<Store[]> {
+      const followedStores = await prisma.storeFollower.findMany({
+        where: { userId },
+        include: { store: true },
+        orderBy: { createdAt: "desc" },
+      });
+
+      return followedStores.map(({ store }) => ({
+        id: store.id,
+        userId: store.userId,
+        name: store.name,
+        slug: store.slug,
+        logoUrl: store.logoUrl,
+        coverUrl: store.coverUrl,
+        verified: store.verified,
+        rating: Number(store.rating),
+        reviewsCount: store.reviewsCount,
+        productsCount: store.productsCount,
+        location: store.location,
+        joinedYear: String(store.createdAt.getFullYear()),
+        followersCount: store.followersCount,
+        description: store.description,
+        isOpen: isStoreOpen(
+          store.businessHours as BusinessHours,
+          store.vacationMode,
+        ),
+        isFollowedByCurrentUser: true,
+        contact: {
+          phone: store.phone,
+          email: store.email,
+          website: store.website,
+        },
+      }));
+    }
+
     async findStores(search: string, page: number, limit: number, location?: string) {
         const [stores, total] = await Promise.all([
           prisma.store.findMany({
@@ -158,4 +193,19 @@ export class StoreRepository {
         },
       });
     }
-}
+
+    async getStoreBySellerId(sellerId: string): Promise<StoreSummary[]> {
+      const stores = await prisma.store.findMany({ where: { userId: sellerId }});
+      return stores.map(store => ({
+        id: store.id,
+        name: store.name,
+        slug: store.slug,
+        logoUrl: store.logoUrl,
+        coverUrl: store.coverUrl,
+        verified: store.verified,
+        rating: Number(store.rating),
+        reviewsCount: store.reviewsCount,
+        productsCount: store.productsCount,
+      }));
+    }
+  }
