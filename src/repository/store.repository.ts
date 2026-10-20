@@ -3,6 +3,7 @@ import { prisma } from "../database/prisma.js";
 import type { Store, StoreSettings, StoreSummary } from "../types/store.js";
 import { isStoreOpen } from "../utils/BusinessHours.js";
 import type { role } from "../types/userRole.js";
+import { getSellerBusinessDetails } from "../client/grpc/seller.client.js";
 
 export class StoreRepository {
 
@@ -101,6 +102,8 @@ export class StoreRepository {
 
     if (!store) return null;
 
+    const businessDetails = await getSellerBusinessDetails(store.userId);
+
     return {
       id: store.id,
       name: store.name,
@@ -111,6 +114,13 @@ export class StoreRepository {
       location: store.location,
       phone: store.phone,
       email: store.email,
+      ...(businessDetails.businessType === "individual" || businessDetails.businessType === "company"
+        ? { businessType: businessDetails.businessType }
+        : {}),
+      ...(businessDetails.taxId ? { taxId: businessDetails.taxId } : {}),
+      ...(businessDetails.registrationNumber
+        ? { registrationNumber: businessDetails.registrationNumber }
+        : {}),
       vacationMode: store.vacationMode,
       businessHours: store.businessHours as BusinessHours,
       socialLinks: store.socialLinks,
