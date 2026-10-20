@@ -93,8 +93,10 @@ export class StoreRepository {
 ): Promise<Store | StoreSettings | null> {
 
   if (role === 'SELLER') {
+    if (!userId) return null;
+
     const store = await prisma.store.findUnique({
-      where: { id },
+      where: { id, userId },
       include: {
         policy: true,
       },
