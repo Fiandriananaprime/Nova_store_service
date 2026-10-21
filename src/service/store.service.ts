@@ -77,18 +77,4 @@ export class StoreService {
         const store = await this.storeRepository.getStoreById(storeId, sellerId,"SELLER")
         return store
     }
-
-    async getShippingSettingsBySellerId(storeId: string, sellerId: string){
-        const shippingSetting = await this.storeRepository.getShippingSetting(storeId, sellerId);
-        if(!shippingSetting) throw new StoreNotFoundError()
-        return shippingSetting
-    }
-
-    async updateShippingSettingsBySellerId(storeId: string, sellerId: string){
-        const shippingSetting = await this.storeRepository.updateShippingSetting(storeId, sellerId);
-        if(!shippingSetting) throw new StoreNotFoundError();
-
-        return shippingSetting
-
-    }
 }

@@ -1,12 +1,15 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 import type { StoreService } from "../service/store.service.js";
-import type { StoreSettingUpdate } from "../types/store.js";
+import type { SellerShippingSettings, StoreSettingUpdate } from "../types/store.js";
+import type { SellerService } from "../service/seller.service.js";
 
 export class SellerStoreController {
     private readonly storeService: StoreService;
+    private readonly sellerService: SellerService;
 
-    constructor(storeService: StoreService) {
+    constructor(storeService: StoreService, sellerService: SellerService) {
         this.storeService = storeService;
+        this.sellerService = sellerService;
     }
 
     async getStoreBySellerId(request: FastifyRequest,reply: FastifyReply) {
@@ -40,16 +43,16 @@ export class SellerStoreController {
         const sellerId = request.userId;
         const storeId = request.storeId;
         if(!sellerId || !storeId) return reply.code(401).send({ error: "Unauthorized" })
-        const shippingSettings = await this.storeService.getShippingSettingsBySellerId(sellerId,storeId);
+        const shippingSettings = await this.sellerService.getShippingSettingsBySellerId(sellerId,storeId);
         return reply.status(200).send(shippingSettings);
     }
 
-    async updateShippingSettingsBySellerId(request: FastifyRequest<{Params:{id: string},Body: any}>,reply: FastifyReply){
+    async updateShippingSettingsBySellerId(request: FastifyRequest<{Params:{id: string},Body: SellerShippingSettings}>,reply: FastifyReply){
         const sellerId = request.userId;
         const storeId= request.params.id;
         const updateData = request.body;
         if(!sellerId) return reply.code(401).send({ error: "Unauthorized" })
-        const updatedSettings = await this.storeService.updateShippingSettingsBySellerId(storeId,sellerId,updateData);
+        const updatedSettings = await this.sellerService.updateShippingSettingsBySellerId(storeId,sellerId,updateData);
         return reply.status(200).send(updatedSettings);
     }
         
