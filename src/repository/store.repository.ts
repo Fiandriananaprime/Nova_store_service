@@ -1,6 +1,6 @@
 
 import { prisma } from "../database/prisma.js";
-import type { BusinessHours, SellerShippingSettings, Store, StoreSettings, StoreSettingUpdate, StoreSummary } from "../types/store.js";
+import type { BusinessHours, Store, StoreSettings, StoreSettingUpdate, StoreSummary } from "../types/store.js";
 import { isStoreOpen } from "../utils/BusinessHours.js";
 import type { role } from "../types/userRole.js";
 import { getSellerBusinessDetails } from "../client/grpc/seller.client.js";

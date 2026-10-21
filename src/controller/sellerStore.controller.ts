@@ -1,6 +1,6 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 import type { StoreService } from "../service/store.service.js";
-import type { SellerShippingSettings, StoreSettingUpdate } from "../types/store.js";
+import type { SellerShippingSettings, StorePolicies, StoreSettingUpdate } from "../types/store.js";
 import type { SellerService } from "../service/seller.service.js";
 
 export class SellerStoreController {
@@ -54,6 +54,23 @@ export class SellerStoreController {
         if(!sellerId) return reply.code(401).send({ error: "Unauthorized" })
         const updatedSettings = await this.sellerService.updateShippingSettingsBySellerId(storeId,sellerId,updateData);
         return reply.status(200).send(updatedSettings);
+    }
+
+    async getStorePolicies(request: FastifyRequest, reply: FastifyReply) {
+        const sellerId = request.userId;
+        const storeId = request.storeId;
+        if(!sellerId || !storeId) return reply.code(401).send({ error: "Unauthorized" })
+        const storePolicies = await this.sellerService.getStorePolicies(storeId, sellerId);
+        return reply.status(200).send(storePolicies);
+    }
+
+    async updateStorePolicies(request: FastifyRequest<{Body: Partial<StorePolicies>}>, reply: FastifyReply) {
+        const sellerId = request.userId;
+        const storeId = request.storeId;
+        const updateData = request.body;
+        if(!sellerId || !storeId) return reply.code(401).send({ error: "Unauthorized" })
+        const updatedPolicies = await this.sellerService.updateStorePolicies(storeId, sellerId, updateData);
+        return reply.status(200).send(updatedPolicies);
     }
         
 }

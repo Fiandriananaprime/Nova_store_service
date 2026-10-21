@@ -28,5 +28,5 @@ export const routes = (app: FastifyInstance) => {
     const sellerController = new SellerStoreController(storeService, sellerService);
 
     StoreRoute(app,storeController,categoryController,{prefix: "/api"})
-    SellerRoute(app,sellerController,{prefix:"/api/seller"})
+    SellerRoute(app,sellerController,storeService,{prefix:"/api/seller"})
 };

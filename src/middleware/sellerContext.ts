@@ -33,3 +33,8 @@ export const requireStore = async (
 
   request.storeId = store.id;
 }
+
+export const sellerContextHook = (storeService: StoreService) =>
+  async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
+    await requireStore(request, reply, storeService);
+  };
