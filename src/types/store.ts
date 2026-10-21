@@ -66,7 +66,7 @@ export interface StoreSettings {
   vacationMode: boolean;
   businessHours: BusinessHours;
   socialLinks: Prisma.JsonValue;
-  policies: StorePolicies;
+  policies: StorePolicies | null;
 }
 
 export interface StorePolicies {
@@ -74,4 +74,18 @@ export interface StorePolicies {
   refundPolicy: string;
   cancellationPolicy: string;
   privacyPolicy: string;
+}
+
+export interface StoreSettingUpdate {
+  name?: string;
+  slug?: string;
+  description?: string;
+  logoUrl?: string | null;
+  coverUrl?: string | null;
+  location?: string;
+  phone?: string;
+  email?: string;
+  vacationMode?: boolean;
+  businessHours?: BusinessHours;
+  socialLinks?: Prisma.JsonValue;
 }

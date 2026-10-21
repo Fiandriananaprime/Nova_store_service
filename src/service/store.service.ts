@@ -1,6 +1,6 @@
 import { StoreNotFoundError } from "../errorHandler/StoreError.js";
 import type { StoreRepository } from "../repository/store.repository.js";
-import type { Store, StoreSettings, StoreSummary } from "../types/store.js";
+import type { Store, StoreSettings, StoreSettingUpdate, StoreSummary } from "../types/store.js";
 import type { role } from "../types/userRole.js";
 import { getSellerBusinessDetails } from "../client/grpc/seller.client.js";
 import { InvalidCredentials } from "../errorHandler/InvalidCredentials.js";
@@ -66,4 +66,10 @@ export class StoreService {
         return store;
     }
 
+    async updateByIdAndSellerId(storeId: string, sellerId: string, updateData: StoreSettingUpdate): Promise<StoreSettings> {
+        const updatedStore = await this.storeRepository.updateByIdAndSellerId(storeId, sellerId, updateData);
+        if(!updatedStore) throw new StoreNotFoundError();
+        return updatedStore;
+
+    }
 }

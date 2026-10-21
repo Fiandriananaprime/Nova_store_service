@@ -1,9 +1,11 @@
 import type { BusinessHours } from "@Fiandriananaprime/nova_api_type";
 import { prisma } from "../database/prisma.js";
-import type { Store, StoreSettings, StoreSummary } from "../types/store.js";
+import type { Store, StoreSettings, StoreSettingUpdate, StoreSummary } from "../types/store.js";
 import { isStoreOpen } from "../utils/BusinessHours.js";
 import type { role } from "../types/userRole.js";
 import { getSellerBusinessDetails } from "../client/grpc/seller.client.js";
+import { StoreNotFoundError } from "../errorHandler/StoreError.js";
+import  { Prisma } from "../generated/prisma/index.js";
 
 export class StoreRepository {
 
@@ -263,5 +265,36 @@ export class StoreRepository {
         reviewsCount: store.reviewsCount,
         productsCount: store.productsCount,
       }));
+    }
+
+    async updateByIdAndSellerId(storeId: string,sellerId: string,input: StoreSettingUpdate,): Promise<StoreSettings | null> {
+      const store = await prisma.store.findFirst({where: { id: storeId, userId: sellerId }});
+      if (!store) return null;
+
+      const { socialLinks, ...rest } = input;
+
+      const data: Prisma.StoreUpdateInput = {
+        ...rest,
+        ...(socialLinks !== undefined && {
+          socialLinks:
+            socialLinks === null
+              ? Prisma.JsonNull
+              : (socialLinks as Prisma.InputJsonValue),
+        }),
+      };
+
+      const updatedStore = await prisma.store.update({
+        where: { id: storeId },
+        data,
+        include: {
+          policy: true,
+        },
+      });
+      const { policy, ...storeData } = updatedStore;
+
+      return {
+        ...storeData,
+        policies: policy,
+      };
     }
   }
