@@ -1,3 +1,4 @@
+import type { Decimal } from "@prisma/client/runtime/client";
 import type { Prisma } from "../generated/prisma/index.js";
 
 export type GetAllProductsQueryParams = {
@@ -88,4 +89,19 @@ export interface StoreSettingUpdate {
   vacationMode?: boolean;
   businessHours?: BusinessHours;
   socialLinks?: Prisma.JsonValue;
+}
+
+export type ReturnShippingPayer =
+  | 'seller_if_defective'
+  | 'always_seller'
+  | 'always_buyer';
+
+export interface SellerShippingSettings {
+  zone1: Decimal;
+  zone2: Decimal;
+  zone3: Decimal;
+  freeShippingThreshold?: Decimal | null;
+  processingHours: number;
+  returnWindowDays: number;
+  returnShippingPayer: ReturnShippingPayer;
 }

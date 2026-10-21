@@ -25,15 +25,32 @@ export class SellerStoreController {
         return reply.status(200).send(store)
     }
 
-    async updateByStoreIdAndSellerId(request:FastifyRequest<{Params:{id: string},Body: StoreSettingUpdate}>,reply:FastifyReply){
+    async updateByStoreIdAndSellerId(request:FastifyRequest<{Body: StoreSettingUpdate}>,reply:FastifyReply){
         const sellerId = request.userId;
-        const storeId= request.params.id;
+        const storeId= request.storeId;
         const updateData = request.body;
-        if(!sellerId) return reply.code(401).send({ error: "Unauthorized" })
+        if(!sellerId || !storeId) return reply.code(401).send({ error: "Unauthorized" })
 
         const store = await this.storeService.updateByIdAndSellerId(storeId,sellerId,updateData);
 
         return reply.status(200).send(store)
+    }
+
+    async getShippingSettingsBySellerId(request: FastifyRequest,reply: FastifyReply){
+        const sellerId = request.userId;
+        const storeId = request.storeId;
+        if(!sellerId || !storeId) return reply.code(401).send({ error: "Unauthorized" })
+        const shippingSettings = await this.storeService.getShippingSettingsBySellerId(sellerId,storeId);
+        return reply.status(200).send(shippingSettings);
+    }
+
+    async updateShippingSettingsBySellerId(request: FastifyRequest<{Params:{id: string},Body: any}>,reply: FastifyReply){
+        const sellerId = request.userId;
+        const storeId= request.params.id;
+        const updateData = request.body;
+        if(!sellerId) return reply.code(401).send({ error: "Unauthorized" })
+        const updatedSettings = await this.storeService.updateShippingSettingsBySellerId(storeId,sellerId,updateData);
+        return reply.status(200).send(updatedSettings);
     }
         
 }

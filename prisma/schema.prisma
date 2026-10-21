@@ -51,6 +51,26 @@ enum BusinessType {
   company
 }
 
+enum ReturnShippingPayer {
+  seller_if_defective
+  always_seller
+  always_buyer
+}
+
+model SellerShippingSettings {
+  storeId              String              @id @map("store_id")
+  zone1                Decimal             @default(0) @db.Decimal(12, 2)
+  zone2                Decimal             @default(0) @db.Decimal(12, 2)
+  zone3                Decimal             @default(0) @db.Decimal(12, 2)
+  freeShippingThreshold Decimal?            @map("free_shipping_threshold") @db.Decimal(12, 2)
+  processingHours      Int                 @default(0) @map("processing_hours")
+  returnWindowDays     Int                 @default(0) @map("return_window_days")
+  returnShippingPayer  ReturnShippingPayer @default(seller_if_defective) @map("return_shipping_payer")
+
+  store                Store               @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  @@map("seller_shipping_settings")
+}
 model Category {
   id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name      String
@@ -95,6 +115,7 @@ model Store {
   policy StorePolicy?
   followers StoreFollower[]
   featured FeaturedStore[]
+  shippingSettings SellerShippingSettings?
   @@index([verified, location], map: "idx_stores_verified_location")
   @@map("stores")
 }
