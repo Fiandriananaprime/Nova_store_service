@@ -1,10 +1,9 @@
-import type { BusinessHours } from "@Fiandriananaprime/nova_api_type";
+
 import { prisma } from "../database/prisma.js";
-import type { Store, StoreSettings, StoreSettingUpdate, StoreSummary } from "../types/store.js";
+import type { BusinessHours, Store, StoreSettings, StoreSettingUpdate, StoreSummary } from "../types/store.js";
 import { isStoreOpen } from "../utils/BusinessHours.js";
 import type { role } from "../types/userRole.js";
 import { getSellerBusinessDetails } from "../client/grpc/seller.client.js";
-import { StoreNotFoundError } from "../errorHandler/StoreError.js";
 import  { Prisma } from "../generated/prisma/index.js";
 
 export class StoreRepository {
@@ -294,6 +293,7 @@ export class StoreRepository {
 
       return {
         ...storeData,
+        businessHours: updatedStore.businessHours as BusinessHours,
         policies: policy,
       };
     }

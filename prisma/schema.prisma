@@ -87,7 +87,7 @@ model Store {
   website        String?
   businessType   BusinessType @map("business_type")
   vacationMode   Boolean  @default(false) @map("vacation_mode")
-  businessHours  Json     @default("{}") @map("business_hours")
+  businessHours Json @default("{\"monday\":{\"open\":\"08:00\",\"close\":\"16:00\",\"closed\":false},\"tuesday\":{\"open\":\"08:00\",\"close\":\"16:00\",\"closed\":false},\"wednesday\":{\"open\":\"08:00\",\"close\":\"16:00\",\"closed\":false},\"thursday\":{\"open\":\"08:00\",\"close\":\"16:00\",\"closed\":false},\"friday\":{\"open\":\"08:00\",\"close\":\"16:00\",\"closed\":false},\"saturday\":{\"open\":\"08:00\",\"close\":\"16:00\",\"closed\":false},\"sunday\":{\"open\":\"08:00\",\"close\":\"16:00\",\"closed\":false}}") @map("business_hours")
   socialLinks    Json     @default("{}") @map("social_links")
   createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt      DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
